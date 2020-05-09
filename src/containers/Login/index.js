@@ -41,7 +41,6 @@ const MyForm = props => {
         handleSubmit,
     } = props;
     return (
-
         <Grid
             container
             spacing={2}
@@ -50,50 +49,55 @@ const MyForm = props => {
             justify="center"
             style={{ minHeight: '80vh' }}
         >
-            <Grid item xs={6}
+            <Grid container direction="column" item xs={4}
                 className={classes.form}>
                 <Paper variant="outlined" square className={classes.paper}>
                     <form onSubmit={handleSubmit}>
-                        <TextField
-                            value={values.email}
-                            name="email"
-                            label="Email"
-                            type="text"
-                            variant="outlined"
-                            helperText="Add your email"
-                            className={classes.input}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            InputProps={{
-                                className: classes.textInput
-                            }}
-                        />
-                        {errors.email && touched.email && <div id="feedback">{errors.email}</div>}
+                        <Grid item>
+                            <TextField
+                                value={values.email}
+                                name="email"
+                                label="Email"
+                                type="text"
+                                variant="outlined"
+                                helperText="Add your email"
+                                className={classes.input}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                InputProps={{
+                                    className: classes.textInput
+                                }}
+                            />
+                            {errors.email && touched.email && <div id="feedback">{errors.email}</div>}
+                        </Grid>
 
-                        <TextField
-                            value={values.password}
-                            name="password"
-                            label="Password"
-                            type="password"
-                            variant="outlined"
-                            helperText="Add your password"
-                            className={classes.input}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            InputProps={{
-                                className: classes.textInput
-                            }}
-                        />
-                        {errors.password && touched.password && <div id="feedback">{errors.password}</div>}
+                        <Grid item>
+                            <TextField
+                                value={values.password}
+                                name="password"
+                                label="Password"
+                                type="password"
+                                variant="outlined"
+                                helperText="Add your password"
+                                className={classes.input}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                InputProps={{
+                                    className: classes.textInput
+                                }}
+                            />
+                            {errors.password && touched.password && <div id="feedback">{errors.password}</div>}
+                        </Grid>
 
-                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                        <Grid item
+                            style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
                             <Button
                                 type="submit"
                                 onClick={handleLogin}
                             >
                                 Submit
                                 </Button>
-                        </div>
+                        </Grid>
                     </form>
                 </Paper>
             </Grid>
