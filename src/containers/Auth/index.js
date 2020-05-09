@@ -1,7 +1,10 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, TextField, Button, Paper } from '@material-ui/core';
 import { withFormik } from 'formik';
+import axios from 'axios';
+import * as actions from '../store/actions/index';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -22,11 +25,6 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'beige',
     },
 }));
-
-
-const handleLogin = () => {
-    console.log("** Login button pressed")
-}
 
 
 const MyForm = props => {
@@ -68,7 +66,8 @@ const MyForm = props => {
                                     className: classes.textInput
                                 }}
                             />
-                            {errors.email && touched.email && <div id="feedback">{errors.email}</div>}
+                            {errors.email && touched.email &&
+                                <div id="email-error">{errors.email}</div>}
                         </Grid>
 
                         <Grid item>
@@ -86,14 +85,14 @@ const MyForm = props => {
                                     className: classes.textInput
                                 }}
                             />
-                            {errors.password && touched.password && <div id="feedback">{errors.password}</div>}
+                            {errors.password && touched.password &&
+                                <div id="password-error">{errors.password}</div>}
                         </Grid>
 
                         <Grid item
                             style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
                             <Button
                                 type="submit"
-                                onClick={handleLogin}
                             >
                                 Submit
                                 </Button>
@@ -105,26 +104,53 @@ const MyForm = props => {
     );
 };
 
-export const Login = withFormik({
-    mapPropsToValues: () => ({ name: '' }),
+const Auth = withFormik({
+    mapPropsToValues: () => ({ email: '', password: '' }),
 
     // Custom sync validation
     validate: values => {
         const errors = {};
 
-        if (!values.name) {
-            errors.name = 'Required';
+        if (!values.email) {
+            errors.email = 'Required';
+        }
+        else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+            errors.email = 'Invalid email address';
+        }
+
+        if (!values.password) {
+            errors.password = 'Required';
+        } else if (values.password.length < 6) {
+            errors.password = "The password must be at least 6 characters long."
         }
 
         return errors;
     },
 
-    handleSubmit: (values, { setSubmitting }) => {
+    handleSubmit: (values, { setSubmitting, props }) => {
         setTimeout(() => {
             alert(JSON.stringify(values, null, 2));
+
+            submitLoginData(values, props);
+
             setSubmitting(false);
         }, 1000);
     },
 
-    displayName: 'BasicForm',
+    displayName: 'AuthForm',
 })(MyForm);
+
+
+const submitLoginData = (values, props) => {
+    console.log(values)
+    props.onAuth(values.email, values.password)
+}
+
+
+const mapsDispatchToProps = dispatch => {
+    return {
+        onAuth: (email, password) => dispatch(actions.auth(email, password))
+    }
+}
+
+export default connect(null, mapsDispatchToProps)(Auth);

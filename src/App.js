@@ -7,26 +7,38 @@ import {
 import NavAppBar from './containers/NavAppBar';
 // import logo from './logo.svg';
 // import './App.css';
-import { Login } from './containers/Login';
+import Auth from './containers/Auth';
+import { Provider } from 'react-redux';
+import { createStore, compose, applyMiddleware } from 'redux';
+
+import reducer from './containers/store/reducers/reducer';
+import thunk from 'redux-thunk';
+
+const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = createStore(
+  reducer, composeEnhancer(applyMiddleware(thunk)),
+);
 
 function App() {
   return (
-    <Router>
-      <NavAppBar />
-      <div>
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/login">
-            <Login />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <NavAppBar />
+        <div>
+          <Switch>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/login">
+              <Auth />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
+    </Provider>
   );
 }
 
