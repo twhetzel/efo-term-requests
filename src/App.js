@@ -9,15 +9,19 @@ import NavAppBar from './containers/NavAppBar';
 // import './App.css';
 import Auth from './containers/Auth';
 import { Provider } from 'react-redux';
-import { createStore, compose, applyMiddleware } from 'redux';
-
-import reducer from './containers/store/reducers/reducer';
+import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 
+import authReducer from './containers/store/reducers/auth';
+
+
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(
-  reducer, composeEnhancer(applyMiddleware(thunk)),
-);
+
+const rootReducer = combineReducers({
+  auth: authReducer
+})
+
+const store = createStore(rootReducer, composeEnhancer(applyMiddleware(thunk)));
 
 function App() {
   return (
