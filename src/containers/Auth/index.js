@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, TextField, Button, Paper } from '@material-ui/core';
+import { Grid, TextField, Button, Paper, CircularProgress, Typography } from '@material-ui/core';
 import { withFormik } from 'formik';
 import * as actions from '../store/actions/index';
 
@@ -54,6 +54,65 @@ const MyForm = props => {
         });
     }
 
+    let form = (
+        <form onSubmit={handleSubmit}>
+            <Grid item>
+                <TextField
+                    value={values.email}
+                    name="email"
+                    label="Email"
+                    type="text"
+                    variant="outlined"
+                    helperText="Add your email"
+                    className={classes.input}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    InputProps={{
+                        className: classes.textInput
+                    }}
+                />
+                {errors.email && touched.email &&
+                    <div id="email-error">{errors.email}</div>}
+            </Grid>
+
+            <Grid item>
+                <TextField
+                    value={values.password}
+                    name="password"
+                    label="Password"
+                    type="password"
+                    variant="outlined"
+                    helperText="Add your password"
+                    className={classes.input}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    InputProps={{
+                        className: classes.textInput
+                    }}
+                />
+                {errors.password && touched.password &&
+                    <div id="password-error">{errors.password}</div>}
+            </Grid>
+
+            <Grid item style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                <Button type="submit"> Submit </Button>
+            </Grid>
+        </form>
+    )
+
+    if (props.loading) {
+        form = <CircularProgress />
+    }
+
+    let errorMessage = null;
+    if (props.error) {
+        errorMessage = (
+            <Typography>
+                {props.error.message}
+            </Typography>
+        )
+    }
+
     return (
         <Grid
             container
@@ -66,49 +125,8 @@ const MyForm = props => {
             <Grid container direction="column" item xs={4}
                 className={classes.form}>
                 <Paper variant="outlined" square className={classes.paper}>
-                    <form onSubmit={handleSubmit}>
-                        <Grid item>
-                            <TextField
-                                value={values.email}
-                                name="email"
-                                label="Email"
-                                type="text"
-                                variant="outlined"
-                                helperText="Add your email"
-                                className={classes.input}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                InputProps={{
-                                    className: classes.textInput
-                                }}
-                            />
-                            {errors.email && touched.email &&
-                                <div id="email-error">{errors.email}</div>}
-                        </Grid>
-
-                        <Grid item>
-                            <TextField
-                                value={values.password}
-                                name="password"
-                                label="Password"
-                                type="password"
-                                variant="outlined"
-                                helperText="Add your password"
-                                className={classes.input}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                InputProps={{
-                                    className: classes.textInput
-                                }}
-                            />
-                            {errors.password && touched.password &&
-                                <div id="password-error">{errors.password}</div>}
-                        </Grid>
-
-                        <Grid item style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-                            <Button type="submit"> Submit </Button>
-                        </Grid>
-                    </form>
+                    {errorMessage}
+                    {form}
                     <Button
                         onClick={(event) => (switchModeHandler(event))}
                         className={classes.danger}>Switch to {isSignUpForm ? 'Signin' : 'Signup'}
@@ -150,7 +168,7 @@ const Auth = withFormik({
             props.onAuth(values.email, values.password, values.isSignUpForm)
 
             setSubmitting(false);
-            resetForm()
+            // resetForm()
         }, 1000);
     },
 
@@ -158,10 +176,17 @@ const Auth = withFormik({
 })(MyForm);
 
 
+const mapStateToProps = state => {
+    return {
+        loading: state.auth.loading,
+        error: state.auth.error
+    };
+};
+
 const mapDispatchToProps = dispatch => {
     return {
         onAuth: (email, password, isSignUpForm) => dispatch(actions.auth(email, password, isSignUpForm))
     }
 }
 
-export default connect(null, mapDispatchToProps)(Auth);
+export default connect(mapStateToProps, mapDispatchToProps)(Auth);
