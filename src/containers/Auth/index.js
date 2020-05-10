@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, TextField, Button, Paper } from '@material-ui/core';
 import { withFormik } from 'formik';
-import axios from 'axios';
 import * as actions from '../store/actions/index';
 
 const useStyles = makeStyles((theme) => ({
@@ -24,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
     textInput: {
         backgroundColor: 'beige',
     },
+    danger: {
+        color: '#e60000',
+        textTransform: 'uppercase',
+    },
 }));
 
 
@@ -38,6 +41,19 @@ const MyForm = props => {
         handleBlur,
         handleSubmit,
     } = props;
+
+    const [isSignUpForm, setSignUpForm] = useState(true);
+
+    const switchModeHandler = () => {
+        setSignUpForm(!isSignUpForm)
+
+        // Update Formik values to pass isSignUp to Redux action as a value
+        props.setValues({
+            ...props.values,
+            isSignUpForm: !isSignUpForm,
+        });
+    }
+
     return (
         <Grid
             container
@@ -89,15 +105,14 @@ const MyForm = props => {
                                 <div id="password-error">{errors.password}</div>}
                         </Grid>
 
-                        <Grid item
-                            style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-                            <Button
-                                type="submit"
-                            >
-                                Submit
-                                </Button>
+                        <Grid item style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                            <Button type="submit"> Submit </Button>
                         </Grid>
                     </form>
+                    <Button
+                        onClick={(event) => (switchModeHandler(event))}
+                        className={classes.danger}>Switch to {isSignUpForm ? 'Signin' : 'Signup'}
+                    </Button>
                 </Paper>
             </Grid>
         </Grid>
@@ -105,7 +120,7 @@ const MyForm = props => {
 };
 
 const Auth = withFormik({
-    mapPropsToValues: () => ({ email: '', password: '' }),
+    mapPropsToValues: () => ({ email: '', password: '', isSignUpForm: true }),
 
     // Custom sync validation
     validate: values => {
@@ -127,13 +142,15 @@ const Auth = withFormik({
         return errors;
     },
 
-    handleSubmit: (values, { setSubmitting, props }) => {
+    handleSubmit: (values, { setSubmitting, resetForm, props }) => {
         setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
+            // alert(JSON.stringify(values, null, 2));
 
-            submitLoginData(values, props);
+            // Call Redux action creator
+            props.onAuth(values.email, values.password, values.isSignUpForm)
 
             setSubmitting(false);
+            resetForm()
         }, 1000);
     },
 
@@ -141,16 +158,10 @@ const Auth = withFormik({
 })(MyForm);
 
 
-const submitLoginData = (values, props) => {
-    console.log(values)
-    props.onAuth(values.email, values.password)
-}
-
-
-const mapsDispatchToProps = dispatch => {
+const mapDispatchToProps = dispatch => {
     return {
-        onAuth: (email, password) => dispatch(actions.auth(email, password))
+        onAuth: (email, password, isSignUpForm) => dispatch(actions.auth(email, password, isSignUpForm))
     }
 }
 
-export default connect(null, mapsDispatchToProps)(Auth);
+export default connect(null, mapDispatchToProps)(Auth);
